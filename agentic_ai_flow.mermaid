@@ -1,0 +1,70 @@
+flowchart TD
+    A[User Query: Catalog Request] --> B[Intent Parsing Node]
+    B --> C{Parse Request Type}
+    
+    C -->|DB Size Request| D[Fetch DB Size Tool]
+    C -->|User Role Request| E[Fetch User Roles Tool]
+    C -->|Service Account Request| F[Fetch Service Account Roles Tool]
+    C -->|Access Info Request| G[Fetch Access Info Tool]
+    C -->|Multiple Requests| H[Parallel Tool Execution]
+    
+    H --> D
+    H --> E
+    H --> F
+    H --> G
+    
+    D --> I[MCP Protocol Layer]
+    E --> I
+    F --> I
+    G --> I
+    
+    I --> J[External Data Sources]
+    J --> K[(Database APIs)]
+    J --> L[(Role Management Systems)]
+    J --> M[(Access Control Systems)]
+    
+    K --> N[Data Aggregation Node]
+    L --> N
+    M --> N
+    
+    N --> O[LLM Response Generation]
+    O --> P[State Management & Persistence]
+    P --> Q[Formatted Response to User]
+    
+    R[Session Memory] <--> P
+    S[Conversation Context] <--> P
+    
+    subgraph "LangGraph Workflow"
+        B
+        C
+        D
+        E
+        F
+        G
+        H
+        N
+        O
+        P
+    end
+    
+    subgraph "MCP Integration Layer"
+        I
+        J
+    end
+    
+    subgraph "External Systems"
+        K
+        L
+        M
+    end
+    
+    subgraph "Persistence Layer"
+        R
+        S
+    end
+    
+    style A fill:#e1f5fe
+    style Q fill:#c8e6c9
+    style I fill:#fff3e0
+    style B fill:#f3e5f5
+    style O fill:#f3e5f5
