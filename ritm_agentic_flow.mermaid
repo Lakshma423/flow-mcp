@@ -1,0 +1,122 @@
+flowchart TD
+    A[RITM Queue] --> B[RITM Queue Reader]
+    B --> C{New RITM Available?}
+    C -->|No| D[Wait/Poll Queue]
+    D --> C
+    C -->|Yes| E[Parse RITM Request]
+    
+    E --> F[Agent Controller]
+    F --> G[Tachyon LLM Intent Recognition]
+    
+    G --> H{Understand Request Intent?}
+    H -->|No| I[Request Clarification]
+    I --> J[Update Ticket - Need Info]
+    J --> END1[End - Pending User Input]
+    
+    H -->|Yes| K[Extract Parameters]
+    K --> L[CMDB Data Lookup Tool]
+    
+    L --> M{CMDB Data Found?}
+    M -->|No| N[Log Error - Missing Metadata]
+    N --> O[Update Ticket - Data Not Found]
+    O --> END2[End - Resolution Failed]
+    
+    M -->|Yes| P[Validate Metadata]
+    P --> Q[Determine Operation Type]
+    
+    Q --> R{Operation Type}
+    R -->|DB Size Check| S[Prepare DB Size Query]
+    R -->|User Lock Status| T[Prepare User Status Query]
+    R -->|Account Access| U[Prepare Access Query]
+    R -->|Other Operations| V[Prepare Custom Query]
+    
+    S --> W[Automation API Executor]
+    T --> W
+    U --> W
+    V --> W
+    
+    W --> X[Execute API Call]
+    X --> Y{API Call Successful?}
+    
+    Y -->|No| Z[Retry Logic]
+    Z --> AA{Retry Attempts < Max?}
+    AA -->|Yes| X
+    AA -->|No| BB[Log Failure]
+    BB --> CC[Update Ticket - Execution Failed]
+    CC --> END3[End - Technical Failure]
+    
+    Y -->|Yes| DD[Process API Response]
+    DD --> EE[Format Results]
+    EE --> FF[Tachyon LLM Response Generation]
+    FF --> GG[Generate Resolution Summary]
+    
+    GG --> HH[Ticket Updater]
+    HH --> II[Add Work Notes]
+    II --> JJ[Mark Ticket Resolved]
+    JJ --> KK[Send Notification]
+    KK --> LL[Log Success]
+    LL --> END4[End - Successfully Resolved]
+    
+    subgraph "Agent Core Components"
+        direction TB
+        F
+        G
+        K
+        FF
+        GG
+    end
+    
+    subgraph "External Systems Integration"
+        direction TB
+        L
+        W
+        HH
+    end
+    
+    subgraph "Data Sources"
+        direction TB
+        MM[(CMDB Database)]
+        NN[(Target Databases)]
+        OO[(ServiceNow/Ticketing)]
+    end
+    
+    subgraph "LangChain/LangGraph Tools"
+        direction TB
+        PP[CMDB Lookup Tool]
+        QQ[Automation Executor Tool]
+        RR[Tachyon LLM Tool]
+        SS[Ticket Update Tool]
+    end
+    
+    L -.-> MM
+    W -.-> NN
+    HH -.-> OO
+    
+    L -.-> PP
+    W -.-> QQ
+    G -.-> RR
+    FF -.-> RR
+    HH -.-> SS
+    
+    subgraph "Error Handling & Monitoring"
+        direction TB
+        TT[Audit Logs]
+        UU[Error Tracking]
+        VV[Performance Metrics]
+    end
+    
+    N -.-> UU
+    BB -.-> UU
+    LL -.-> TT
+    X -.-> VV
+    
+    style A fill:#e3f2fd
+    style END1 fill:#fff3e0
+    style END2 fill:#ffebee
+    style END3 fill:#ffebee
+    style END4 fill:#e8f5e8
+    style G fill:#f3e5f5
+    style FF fill:#f3e5f5
+    style W fill:#fff3e0
+    style L fill:#fff3e0
+    style HH fill:#fff3e0
