@@ -1,0 +1,35 @@
+graph TD
+    A[User Interface] --> B[LangGraph Master Agent]
+    
+    B --> C[Validation Layer]
+    C --> D{Access & CMDB Check}
+    
+    D -->|Success| E[Database Type Router]
+    D -->|Failed| F[Access Denied]
+    
+    E --> G[Oracle Agent]
+    E --> H[MySQL Agent] 
+    E --> I[MongoDB Agent]
+    
+    G --> J[Oracle DB]
+    H --> K[MySQL DB]
+    I --> L[MongoDB DB]
+    
+    J --> M[Results]
+    K --> M
+    L --> M
+    
+    M --> N[Response to User]
+    F --> N
+    
+    N --> A
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style E fill:#fff3e0
+    style G fill:#fff8e1
+    style H fill:#fff8e1
+    style I fill:#fff8e1
+    style J fill:#e8f5e8
+    style K fill:#e8f5e8
+    style L fill:#e8f5e8
